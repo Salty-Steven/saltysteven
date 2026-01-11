@@ -10,7 +10,8 @@
             background: #87CEEB;
             border-radius: 10px;
             padding: 20px;
-            margin: 20px 0;
+            margin: 20px auto;
+            max-width: 840px;
         }
 
         canvas {
@@ -69,7 +70,7 @@
         // Slingshot
         const slingshot = {
             x: 100,
-            y: 300,
+            y: 240,
             baseRadius: 30
         };
 
@@ -87,7 +88,7 @@
         // Target (tiny man)
         const target = {
             x: 650,
-            y: 320,
+            y: 290,
             width: 40,
             height: 60,
             hit: false
@@ -100,7 +101,7 @@
         };
 
         // Physics
-        const gravity = 0.3;
+        const gravity = 0.15;
         const maxPullDistance = 100;
 
         function resetRock() {
@@ -275,7 +276,6 @@
             drawGround();
             drawTarget();
             drawSlingshot();
-            drawTrajectory();
             drawRock();
         }
 
