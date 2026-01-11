@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle 1 - The Three Doors</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Puzzle 1: The Three Doors 🚪</h2>
+        <div class="content">
+            <p>You encounter three doors. Behind one is the path forward, behind the others... well, let's not spoil the surprise!</p>
+            <div class="riddle">
+                "I speak without a mouth and hear without ears. I have no body, but come alive with wind. What am I?"
+            </div>
+            <p>Choose the door with the correct answer:</p>
+            <div class="doors-container">
+                <button class="door" onclick="checkDoor('shadow')">🌑 Shadow</button>
+                <button class="door" onclick="checkDoor('echo')">🔊 Echo</button>
+                <button class="door" onclick="checkDoor('voice')">🗣️ Voice</button>
+            </div>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script>
+        function checkDoor(answer) {
+            const message = document.getElementById('message');
+            if (answer === 'echo') {
+                message.className = 'success-message';
+                message.textContent = 'Correct! Moving forward...';
+                setTimeout(() => {
+                    location.href = 'puzzle2.html';
+                }, 1500);
+            } else {
+                message.className = 'error-message';
+                message.textContent = 'Oops! That door leads nowhere. Try again!';
+            }
+        }
+    </script>
+</body>
+</html>

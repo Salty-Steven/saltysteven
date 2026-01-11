@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulations!</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .firework {
+            position: fixed;
+            font-size: 2rem;
+            animation: explode 2s ease-out infinite;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        .celebration {
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="celebration">
+            <div class="congrats">🎉🎊🎈</div>
+            <h1>Congrats!</h1>
+            <div class="congrats">🎁🎂🎉</div>
+        </div>
+        <div class="content">
+            <h2>You Did It!</h2>
+            <p>You've successfully navigated through the birthday maze!</p>
+            <p>Hope you had fun solving the puzzles! 🎮</p>
+            <p>Have an amazing birthday! 🥳</p>
+        </div>
+    </div>
+
+    <script>
+        // Create random fireworks
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.textContent = ['🎆', '✨', '⭐', '💫'][Math.floor(Math.random() * 4)];
+            firework.style.left = Math.random() * window.innerWidth + 'px';
+            firework.style.top = Math.random() * window.innerHeight + 'px';
+            document.body.appendChild(firework);
+
+            setTimeout(() => {
+                firework.remove();
+            }, 2000);
+        }
+
+        setInterval(createFirework, 500);
+    </script>
+</body>
+</html>

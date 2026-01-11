@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle 2 - The Number Lock</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Puzzle 2: The Number Lock 🔢</h2>
+        <div class="content">
+            <p>Great job! Now you face a locked door with a number pad.</p>
+            <div class="riddle">
+                I am an odd number. Take away one letter and I become even. What number am I?
+            </div>
+            <input type="number" id="answer" class="puzzle-input" placeholder="Enter number">
+            <br>
+            <button onclick="checkAnswer()">Unlock Door</button>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script>
+        function checkAnswer() {
+            const answer = document.getElementById('answer').value;
+            const message = document.getElementById('message');
+
+            if (answer === '7') {
+                message.className = 'success-message';
+                message.textContent = '🎉 Correct! Seven → Even. The door opens...';
+                setTimeout(() => {
+                    location.href = 'puzzle3.html';
+                }, 2000);
+            } else {
+                message.className = 'error-message';
+                message.textContent = 'Not quite! Think about the letters in the word...';
+            }
+        }
+
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
