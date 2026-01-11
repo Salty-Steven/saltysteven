@@ -3,41 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle 1 - The Three Doors</title>
+    <title>Challenge 1 - Slingshot Game</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .game-container {
+            background: #87CEEB;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        canvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Puzzle 1: The Three Doors 🚪</h2>
+        <h2>Challenge 1: Slingshot Master 🎯</h2>
         <div class="content">
-            <p>You encounter three doors. Behind one is the path forward, behind the others... well, let's not spoil the surprise!</p>
-            <div class="riddle">
-                "I speak without a mouth and hear without ears. I have no body, but come alive with wind. What am I?"
+            <div class="instructions">
+                <strong>Instructions:</strong> Drag the rock back and release to launch it! Hit the tiny man to proceed.
             </div>
-            <p>Choose the door with the correct answer:</p>
-            <div class="doors-container">
-                <button class="door" onclick="checkDoor('shadow')">🌑 Shadow</button>
-                <button class="door" onclick="checkDoor('echo')">🔊 Echo</button>
-                <button class="door" onclick="checkDoor('voice')">🗣️ Voice</button>
+            <div class="game-container">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
+                <div class="game-info">
+                    <span id="attempts">Attempts: 0</span>
+                    <span id="status">Pull back and release!</span>
+                </div>
             </div>
             <p id="message"></p>
         </div>
     </div>
 
     <script>
-        function checkDoor(answer) {
-            const message = document.getElementById('message');
-            if (answer === 'echo') {
-                message.className = 'success-message';
-                message.textContent = 'Correct! Moving forward...';
-                setTimeout(() => {
-                    location.href = 'puzzle2.html';
-                }, 1500);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const message = document.getElementById('message');
+        const statusText = document.getElementById('status');
+        const attemptsText = document.getElementById('attempts');
+
+        let attempts = 0;
+        let gameState = 'ready'; // ready, aiming, flying, hit
+
+        // Slingshot
+        const slingshot = {
+            x: 100,
+            y: 300,
+            baseRadius: 30
+        };
+
+        // Rock
+        let rock = {
+            x: slingshot.x,
+            y: slingshot.y,
+            radius: 12,
+            vx: 0,
+            vy: 0,
+            isDragging: false,
+            flying: false
+        };
+
+        // Target (tiny man)
+        const target = {
+            x: 650,
+            y: 320,
+            width: 40,
+            height: 60,
+            hit: false
+        };
+
+        // Ground
+        const ground = {
+            y: 350,
+            height: 50
+        };
+
+        // Physics
+        const gravity = 0.3;
+        const maxPullDistance = 100;
+
+        function resetRock() {
+            rock.x = slingshot.x;
+            rock.y = slingshot.y;
+            rock.vx = 0;
+            rock.vy = 0;
+            rock.flying = false;
+            rock.isDragging = false;
+        }
+
+        function drawSlingshot() {
+            // Slingshot base
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(slingshot.x - 5, slingshot.y, 10, 50);
+
+            // Slingshot arms
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(slingshot.x, slingshot.y);
+
+            if (rock.isDragging) {
+                ctx.lineTo(rock.x, rock.y);
             } else {
-                message.className = 'error-message';
-                message.textContent = 'Oops! That door leads nowhere. Try again!';
+                ctx.lineTo(slingshot.x, slingshot.y);
+            }
+
+            ctx.stroke();
+        }
+
+        function drawRock() {
+            ctx.fillStyle = '#696969';
+            ctx.beginPath();
+            ctx.arc(rock.x, rock.y, rock.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#404040';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawTarget() {
+            if (target.hit) return;
+
+            const x = target.x;
+            const y = target.y;
+
+            // Head
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + 20, y + 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(x + 15, y + 18, 10, 20);
+
+            // Arms
+            ctx.strokeStyle = '#4169E1';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x + 15, y + 23);
+            ctx.lineTo(x + 5, y + 28);
+            ctx.moveTo(x + 25, y + 23);
+            ctx.lineTo(x + 35, y + 28);
+            ctx.stroke();
+
+            // Legs
+            ctx.beginPath();
+            ctx.moveTo(x + 18, y + 38);
+            ctx.lineTo(x + 13, y + 55);
+            ctx.moveTo(x + 22, y + 38);
+            ctx.lineTo(x + 27, y + 55);
+            ctx.stroke();
+        }
+
+        function drawGround() {
+            ctx.fillStyle = '#8B7355';
+            ctx.fillRect(0, ground.y, canvas.width, ground.height);
+
+            // Grass
+            ctx.fillStyle = '#228B22';
+            ctx.fillRect(0, ground.y, canvas.width, 10);
+        }
+
+        function drawTrajectory() {
+            if (!rock.isDragging) return;
+
+            const dx = slingshot.x - rock.x;
+            const dy = slingshot.y - rock.y;
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(rock.x, rock.y);
+
+            // Predict trajectory
+            let px = rock.x;
+            let py = rock.y;
+            let pvx = dx * 0.15;
+            let pvy = dy * 0.15;
+
+            for (let i = 0; i < 30; i++) {
+                pvx *= 0.99;
+                pvy += gravity;
+                px += pvx;
+                py += pvy;
+
+                if (i % 3 === 0) {
+                    ctx.lineTo(px, py);
+                }
+
+                if (py > ground.y) break;
+            }
+
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function checkCollision() {
+            if (target.hit) return false;
+
+            return rock.x + rock.radius > target.x &&
+                   rock.x - rock.radius < target.x + target.width &&
+                   rock.y + rock.radius > target.y &&
+                   rock.y - rock.radius < target.y + target.height;
+        }
+
+        function update() {
+            if (rock.flying) {
+                // Apply physics
+                rock.vx *= 0.99; // Air resistance
+                rock.vy += gravity;
+
+                rock.x += rock.vx;
+                rock.y += rock.vy;
+
+                // Check collision with target
+                if (checkCollision()) {
+                    target.hit = true;
+                    rock.flying = false;
+                    gameState = 'hit';
+                    message.className = 'success-message';
+                    message.textContent = '🎉 Direct hit! You got him! Moving forward...';
+                    statusText.textContent = 'Victory!';
+
+                    setTimeout(() => {
+                        location.href = 'puzzle2.html';
+                    }, 2500);
+                }
+
+                // Check if hit ground
+                if (rock.y + rock.radius > ground.y) {
+                    rock.flying = false;
+                    statusText.textContent = 'Missed! Try again!';
+                    setTimeout(resetRock, 1000);
+                }
+
+                // Check if out of bounds
+                if (rock.x > canvas.width || rock.x < 0 || rock.y > canvas.height) {
+                    rock.flying = false;
+                    statusText.textContent = 'Missed! Try again!';
+                    setTimeout(resetRock, 1000);
+                }
             }
         }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawGround();
+            drawTarget();
+            drawSlingshot();
+            drawTrajectory();
+            drawRock();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            if (rock.flying || gameState === 'hit') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const dist = Math.sqrt((mouseX - rock.x) ** 2 + (mouseY - rock.y) ** 2);
+
+            if (dist < rock.radius + 10) {
+                rock.isDragging = true;
+                statusText.textContent = 'Pull back...';
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!rock.isDragging) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const dx = mouseX - slingshot.x;
+            const dy = mouseY - slingshot.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < maxPullDistance) {
+                rock.x = mouseX;
+                rock.y = mouseY;
+            } else {
+                const angle = Math.atan2(dy, dx);
+                rock.x = slingshot.x + Math.cos(angle) * maxPullDistance;
+                rock.y = slingshot.y + Math.sin(angle) * maxPullDistance;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (!rock.isDragging) return;
+
+            rock.isDragging = false;
+            rock.flying = true;
+
+            const dx = slingshot.x - rock.x;
+            const dy = slingshot.y - rock.y;
+
+            rock.vx = dx * 0.15;
+            rock.vy = dy * 0.15;
+
+            attempts++;
+            attemptsText.textContent = `Attempts: ${attempts}`;
+            statusText.textContent = 'Flying...';
+        });
+
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', {});
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        // Start game loop
+        gameLoop();
     </script>
 </body>
 </html>
