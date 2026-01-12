@@ -3,46 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle 2 - The Number Lock</title>
+    <title>Challenge 2 - Battle!</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #000;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .battle-container {
+            background: #fff;
+            border: 8px solid #000;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .battle-scene {
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #90EE90 50%, #228B22 100%);
+            height: 300px;
+            position: relative;
+            border-bottom: 4px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px 40px;
+        }
+
+        .player-sprite {
+            position: relative;
+            bottom: 20px;
+        }
+
+        .enemy-sprite {
+            position: relative;
+            bottom: 80px;
+        }
+
+        .cat-sprite {
+            font-size: 80px;
+        }
+
+        .steven-sprite {
+            font-size: 100px;
+        }
+
+        .hp-container {
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 10px;
+            padding: 10px 15px;
+            position: absolute;
+            min-width: 200px;
+        }
+
+        .enemy-hp {
+            top: 20px;
+            right: 40px;
+        }
+
+        .player-hp {
+            bottom: 20px;
+            left: 40px;
+        }
+
+        .hp-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .hp-bar-container {
+            background: #666;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .hp-bar {
+            background: #00ff00;
+            height: 100%;
+            transition: width 0.5s, background 0.3s;
+        }
+
+        .hp-bar.low {
+            background: #ffff00;
+        }
+
+        .hp-bar.critical {
+            background: #ff0000;
+        }
+
+        .hp-text {
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .battle-info {
+            background: #f5f5f5;
+            border-bottom: 4px solid #000;
+            padding: 20px;
+            min-height: 80px;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        .battle-menu {
+            background: #fff;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .attack-btn {
+            background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 3px solid #000;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .attack-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .attack-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .attack-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .type-effect {
+            font-style: italic;
+            color: #666;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Puzzle 2: The Number Lock 🔢</h2>
-        <div class="content">
-            <p>Great job! Now you face a locked door with a number pad.</p>
-            <div class="riddle">
-                I am an odd number. Take away one letter and I become even. What number am I?
+    <div class="battle-container">
+        <div class="battle-scene">
+            <div class="player-sprite">
+                <div class="cat-sprite" id="catSprite">🐱</div>
             </div>
-            <input type="number" id="answer" class="puzzle-input" placeholder="Enter number">
-            <br>
-            <button onclick="checkAnswer()">Unlock Door</button>
-            <p id="message"></p>
+            <div class="enemy-sprite">
+                <div class="steven-sprite" id="stevenSprite">🧍‍♂️</div>
+            </div>
+
+            <div class="hp-container enemy-hp">
+                <div class="hp-name">STEVEN</div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar" id="stevenHpBar" style="width: 100%"></div>
+                </div>
+                <div class="hp-text">HP: <span id="stevenHp">100</span>/100</div>
+            </div>
+
+            <div class="hp-container player-hp">
+                <div class="hp-name">CAT</div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar" id="catHpBar" style="width: 100%"></div>
+                </div>
+                <div class="hp-text">HP: <span id="catHp">80</span>/80</div>
+            </div>
+        </div>
+
+        <div class="battle-info" id="battleText">
+            A wild STEVEN appeared! What will CAT do?
+        </div>
+
+        <div class="battle-menu" id="battleMenu">
+            <button class="attack-btn" onclick="useAttack('bite')">BITE</button>
+            <button class="attack-btn" onclick="useAttack('scratch')">SCRATCH</button>
+            <button class="attack-btn" onclick="useAttack('meow')">MEOW</button>
+            <button class="attack-btn" onclick="useAttack('bird')">THE GOOD OLD BIRD TRICK</button>
         </div>
     </div>
 
     <script>
-        function checkAnswer() {
-            const answer = document.getElementById('answer').value;
-            const message = document.getElementById('message');
+        let catHp = 80;
+        let catMaxHp = 80;
+        let stevenHp = 100;
+        let stevenMaxHp = 100;
+        let isAnimating = false;
 
-            if (answer === '7') {
-                message.className = 'success-message';
-                message.textContent = '🎉 Correct! Seven → Even. The door opens...';
-                setTimeout(() => {
-                    location.href = 'puzzle3.html';
-                }, 2000);
+        function updateHP() {
+            // Update Steven's HP
+            const stevenPercent = (stevenHp / stevenMaxHp) * 100;
+            const stevenBar = document.getElementById('stevenHpBar');
+            stevenBar.style.width = stevenPercent + '%';
+
+            if (stevenPercent <= 25) {
+                stevenBar.className = 'hp-bar critical';
+            } else if (stevenPercent <= 50) {
+                stevenBar.className = 'hp-bar low';
             } else {
-                message.className = 'error-message';
-                message.textContent = 'Not quite! Think about the letters in the word...';
+                stevenBar.className = 'hp-bar';
+            }
+
+            document.getElementById('stevenHp').textContent = Math.max(0, stevenHp);
+
+            // Update Cat's HP
+            const catPercent = (catHp / catMaxHp) * 100;
+            const catBar = document.getElementById('catHpBar');
+            catBar.style.width = catPercent + '%';
+
+            if (catPercent <= 25) {
+                catBar.className = 'hp-bar critical';
+            } else if (catPercent <= 50) {
+                catBar.className = 'hp-bar low';
+            } else {
+                catBar.className = 'hp-bar';
+            }
+
+            document.getElementById('catHp').textContent = Math.max(0, catHp);
+        }
+
+        function setBattleText(text) {
+            document.getElementById('battleText').innerHTML = text;
+        }
+
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.attack-btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function enableButtons() {
+            const buttons = document.querySelectorAll('.attack-btn');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+
+        function shakeSprite(spriteId) {
+            const sprite = document.getElementById(spriteId);
+            sprite.classList.add('shake');
+            setTimeout(() => sprite.classList.remove('shake'), 500);
+        }
+
+        function useAttack(attackType) {
+            if (isAnimating) return;
+
+            isAnimating = true;
+            disableButtons();
+
+            let damage = 0;
+            let attackName = '';
+            let message = '';
+
+            switch(attackType) {
+                case 'bite':
+                    attackName = 'BITE';
+                    damage = Math.floor(Math.random() * 10) + 15; // 15-24 damage
+                    message = `CAT used ${attackName}!`;
+                    break;
+                case 'scratch':
+                    attackName = 'SCRATCH';
+                    damage = Math.floor(Math.random() * 8) + 10; // 10-17 damage
+                    message = `CAT used ${attackName}!`;
+                    break;
+                case 'meow':
+                    attackName = 'MEOW';
+                    message = `CAT used ${attackName}!<br><span class="type-effect">But nothing happened...</span>`;
+                    break;
+                case 'bird':
+                    attackName = 'THE GOOD OLD BIRD TRICK';
+                    message = `CAT used ${attackName}!<br><span class="type-effect">STEVEN looks confused...</span>`;
+                    break;
+            }
+
+            setBattleText(message);
+
+            if (damage > 0) {
+                setTimeout(() => {
+                    stevenHp = Math.max(0, stevenHp - damage);
+                    shakeSprite('stevenSprite');
+                    updateHP();
+
+                    setTimeout(() => {
+                        if (stevenHp <= 0) {
+                            setBattleText('STEVEN fainted!<br>CAT wins! Moving to the next challenge...');
+                            setTimeout(() => {
+                                location.href = 'puzzle3.html';
+                            }, 3000);
+                        } else {
+                            stevenAttack();
+                        }
+                    }, 1000);
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    stevenAttack();
+                }, 2000);
             }
         }
 
-        document.getElementById('answer').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkAnswer();
+        function stevenAttack() {
+            const attacks = [
+                { name: 'PUNCH', damage: [8, 15] },
+                { name: 'KICK', damage: [10, 18] },
+                { name: 'STERN LOOK', damage: [0, 0] }
+            ];
+
+            const attack = attacks[Math.floor(Math.random() * attacks.length)];
+            const damage = attack.damage[0] === 0 ? 0 :
+                          Math.floor(Math.random() * (attack.damage[1] - attack.damage[0] + 1)) + attack.damage[0];
+
+            setBattleText(`STEVEN used ${attack.name}!`);
+
+            if (damage > 0) {
+                setTimeout(() => {
+                    catHp = Math.max(0, catHp - damage);
+                    shakeSprite('catSprite');
+                    updateHP();
+
+                    setTimeout(() => {
+                        if (catHp <= 0) {
+                            setBattleText('CAT fainted!<br>Game Over...');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 3000);
+                        } else {
+                            setBattleText('What will CAT do?');
+                            isAnimating = false;
+                            enableButtons();
+                        }
+                    }, 1000);
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    setBattleText(`STEVEN used ${attack.name}!<br><span class="type-effect">But nothing happened...</span>`);
+                    setTimeout(() => {
+                        setBattleText('What will CAT do?');
+                        isAnimating = false;
+                        enableButtons();
+                    }, 1500);
+                }, 1500);
             }
-        });
+        }
     </script>
 </body>
 </html>
