@@ -114,9 +114,10 @@
         }
 
         function drawSlingshot() {
-            // Slingshot base
+            // Slingshot base - extends to ground
             ctx.fillStyle = '#8B4513';
-            ctx.fillRect(slingshot.x - 5, slingshot.y, 10, 50);
+            const postHeight = ground.y - slingshot.y;
+            ctx.fillRect(slingshot.x - 5, slingshot.y, 10, postHeight);
 
             // Slingshot arms
             ctx.strokeStyle = '#654321';
@@ -134,6 +135,9 @@
         }
 
         function drawRock() {
+            // Don't draw rock if target was hit
+            if (target.hit) return;
+
             ctx.fillStyle = '#696969';
             ctx.beginPath();
             ctx.arc(rock.x, rock.y, rock.radius, 0, Math.PI * 2);
@@ -144,8 +148,6 @@
         }
 
         function drawTarget() {
-            if (target.hit) return;
-
             const x = target.x;
             const y = target.y;
 
@@ -163,10 +165,20 @@
             ctx.strokeStyle = '#4169E1';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(x + 15, y + 23);
-            ctx.lineTo(x + 5, y + 28);
-            ctx.moveTo(x + 25, y + 23);
-            ctx.lineTo(x + 35, y + 28);
+
+            if (target.hit) {
+                // Hand on head (hurt pose)
+                ctx.moveTo(x + 15, y + 23);
+                ctx.lineTo(x + 18, y + 8);  // Left hand to head
+                ctx.moveTo(x + 25, y + 23);
+                ctx.lineTo(x + 30, y + 28);  // Right arm down
+            } else {
+                // Normal arms
+                ctx.moveTo(x + 15, y + 23);
+                ctx.lineTo(x + 5, y + 28);
+                ctx.moveTo(x + 25, y + 23);
+                ctx.lineTo(x + 35, y + 28);
+            }
             ctx.stroke();
 
             // Legs
