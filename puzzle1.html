@@ -306,7 +306,11 @@
 
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
+            let mouseY = e.clientY - rect.top;
+
+            // Prevent dragging below ground
+            const maxY = ground.y - rock.radius - 5;
+            if (mouseY > maxY) mouseY = maxY;
 
             const dx = mouseX - slingshot.x;
             const dy = mouseY - slingshot.y;
