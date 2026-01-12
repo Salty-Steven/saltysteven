@@ -65,12 +65,12 @@
 
         .enemy-hp {
             top: 20px;
-            right: 40px;
+            left: 40px;
         }
 
         .player-hp {
             bottom: 20px;
-            left: 40px;
+            right: 40px;
         }
 
         .hp-name {
@@ -166,6 +166,28 @@
 
         .shake {
             animation: shake 0.5s;
+        }
+
+        .bird {
+            position: absolute;
+            font-size: 40px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes flyAway {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(300px, -200px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .fly-away {
+            animation: flyAway 2s ease-out forwards;
         }
     </style>
 </head>
@@ -267,6 +289,23 @@
             setTimeout(() => sprite.classList.remove('shake'), 500);
         }
 
+        function spawnBird() {
+            const catSprite = document.getElementById('catSprite');
+            const catRect = catSprite.getBoundingClientRect();
+
+            const bird = document.createElement('div');
+            bird.className = 'bird fly-away';
+            bird.textContent = '🐦';
+            bird.style.left = catRect.left + 'px';
+            bird.style.top = catRect.top + 'px';
+
+            document.body.appendChild(bird);
+
+            setTimeout(() => {
+                bird.remove();
+            }, 2000);
+        }
+
         function useAttack(attackType) {
             if (isAnimating) return;
 
@@ -295,6 +334,7 @@
                 case 'bird':
                     attackName = 'THE GOOD OLD BIRD TRICK';
                     message = `CAT used ${attackName}!<br><span class="type-effect">STEVEN looks confused...</span>`;
+                    spawnBird();
                     break;
             }
 
