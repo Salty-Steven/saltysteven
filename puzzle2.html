@@ -177,11 +177,11 @@
 
         @keyframes flyAway {
             0% {
-                transform: translate(0, 0) scaleX(-1) scale(1);
+                transform: translate(0, 0) scaleX(1) scale(1);
                 opacity: 1;
             }
             100% {
-                transform: translate(300px, -200px) scaleX(-1) scale(0.5);
+                transform: translate(300px, -200px) scaleX(1) scale(0.5);
                 opacity: 0;
             }
         }
@@ -348,7 +348,7 @@
 
                     setTimeout(() => {
                         if (stevenHp <= 0) {
-                            setBattleText('STEVEN fainted!<br>LEROY wins! Moving to the next challenge...');
+                            setBattleText('STEVEN went to the hospital!<br>LEROY wins! Moving to the next challenge...');
                             setTimeout(() => {
                                 location.href = 'puzzle3.html';
                             }, 3000);
