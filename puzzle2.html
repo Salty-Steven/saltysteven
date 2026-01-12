@@ -177,11 +177,11 @@
 
         @keyframes flyAway {
             0% {
-                transform: translate(0, 0) scale(1);
+                transform: translate(0, 0) scaleX(-1) scale(1);
                 opacity: 1;
             }
             100% {
-                transform: translate(300px, -200px) scale(0.5);
+                transform: translate(300px, -200px) scaleX(-1) scale(0.5);
                 opacity: 0;
             }
         }
@@ -298,7 +298,6 @@
             bird.textContent = '🕊️';
             bird.style.left = catRect.left + 'px';
             bird.style.top = catRect.top + 'px';
-            bird.style.transform = 'scaleX(-1)';
 
             document.body.appendChild(bird);
 

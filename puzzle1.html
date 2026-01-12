@@ -156,43 +156,17 @@
             const x = target.x;
             const y = target.y;
 
-            // Head
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.arc(x + 20, y + 10, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Body
-            ctx.fillStyle = '#4169E1';
-            ctx.fillRect(x + 15, y + 18, 10, 20);
-
-            // Arms
-            ctx.strokeStyle = '#4169E1';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
+            // Draw Steven emoji
+            ctx.font = '60px Arial';
+            ctx.textAlign = 'center';
 
             if (target.hit) {
-                // Hand on head (hurt pose)
-                ctx.moveTo(x + 15, y + 23);
-                ctx.lineTo(x + 18, y + 8);  // Left hand to head
-                ctx.moveTo(x + 25, y + 23);
-                ctx.lineTo(x + 30, y + 28);  // Right arm down
+                // Hit pose - show hurt expression
+                ctx.fillText('🤕', x + 20, y + 45);
             } else {
-                // Normal arms
-                ctx.moveTo(x + 15, y + 23);
-                ctx.lineTo(x + 5, y + 28);
-                ctx.moveTo(x + 25, y + 23);
-                ctx.lineTo(x + 35, y + 28);
+                // Normal Steven
+                ctx.fillText('🧍‍♂️', x + 20, y + 45);
             }
-            ctx.stroke();
-
-            // Legs
-            ctx.beginPath();
-            ctx.moveTo(x + 18, y + 38);
-            ctx.lineTo(x + 13, y + 55);
-            ctx.moveTo(x + 22, y + 38);
-            ctx.lineTo(x + 27, y + 55);
-            ctx.stroke();
         }
 
         function drawGround() {
