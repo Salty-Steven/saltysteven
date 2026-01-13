@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenge 4 - Cut the Cable!</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background: #fff;
+            border: 8px solid #000;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .speaker-container {
+            position: relative;
+            margin: 30px auto;
+            text-align: center;
+        }
+
+        .speaker {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: shake 0.3s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-2px) rotate(-1deg); }
+            75% { transform: translateX(2px) rotate(1deg); }
+        }
+
+        .volume-indicator {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            color: #ff0000;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .cables-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .cable {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .cable:hover {
+            transform: scale(1.1);
+        }
+
+        .cable-wire {
+            width: 8px;
+            height: 150px;
+            background: linear-gradient(to bottom, #333 0%, #666 50%, #333 100%);
+            border-radius: 4px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .cable.red .cable-wire {
+            background: linear-gradient(to bottom, #8B0000 0%, #FF0000 50%, #8B0000 100%);
+        }
+
+        .cable.blue .cable-wire {
+            background: linear-gradient(to bottom, #00008B 0%, #0000FF 50%, #00008B 100%);
+        }
+
+        .cable.green .cable-wire {
+            background: linear-gradient(to bottom, #006400 0%, #00FF00 50%, #006400 100%);
+        }
+
+        .cable.yellow .cable-wire {
+            background: linear-gradient(to bottom, #8B8000 0%, #FFFF00 50%, #8B8000 100%);
+        }
+
+        .cable-label {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+
+        .cable.red .cable-label {
+            color: #FF0000;
+        }
+
+        .cable.blue .cable-label {
+            color: #0000FF;
+        }
+
+        .cable.green .cable-label {
+            color: #00FF00;
+            text-shadow: 0 0 5px #00FF00;
+        }
+
+        .cable.yellow .cable-label {
+            color: #FFD700;
+        }
+
+        .hint {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #666;
+            font-style: italic;
+            margin-top: 30px;
+        }
+
+        .message {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            margin-top: 20px;
+            min-height: 30px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #00aa00;
+        }
+
+        .error {
+            color: #ff0000;
+        }
+
+        .cut {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .cut .cable-wire {
+            background: #999 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h2>🔊 Challenge 4: Cut the Cable! 🔊</h2>
+        <div class="subtitle">The speaker is too loud! Cut the right cable to silence it!</div>
+
+        <div class="speaker-container">
+            <div class="speaker" id="speaker">🔊</div>
+            <div class="volume-indicator" id="volumeIndicator">♪♪♪ SUPER LOUD ♪♪♪</div>
+        </div>
+
+        <div class="cables-container" id="cablesContainer">
+            <div class="cable red" onclick="cutCable('red')">
+                <div class="cable-wire"></div>
+                <div class="cable-label">RED</div>
+            </div>
+            <div class="cable blue" onclick="cutCable('blue')">
+                <div class="cable-wire"></div>
+                <div class="cable-label">BLUE</div>
+            </div>
+            <div class="cable green" onclick="cutCable('green')">
+                <div class="cable-wire"></div>
+                <div class="cable-label">GREEN</div>
+            </div>
+            <div class="cable yellow" onclick="cutCable('yellow')">
+                <div class="cable-wire"></div>
+                <div class="cable-label">YELLOW</div>
+            </div>
+        </div>
+
+        <div class="hint">
+            💡 Hint: Green cables are usually for audio...
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const correctCable = 'green';
+        let attempts = 0;
+
+        function cutCable(color) {
+            attempts++;
+
+            // Mark cable as cut
+            const cable = document.querySelector(`.cable.${color}`);
+            cable.classList.add('cut');
+
+            if (color === correctCable) {
+                // Success!
+                document.getElementById('speaker').textContent = '🔇';
+                document.getElementById('volumeIndicator').textContent = '... silence ...';
+                document.getElementById('volumeIndicator').style.color = '#00aa00';
+                document.getElementById('volumeIndicator').style.animation = 'none';
+                document.querySelector('.speaker').style.animation = 'none';
+
+                document.getElementById('message').className = 'message success';
+                document.getElementById('message').textContent = '✂️ Perfect! The speaker is silent! Moving to the final challenge...';
+
+                // Disable all cables
+                document.querySelectorAll('.cable').forEach(c => {
+                    c.onclick = null;
+                    c.style.cursor = 'default';
+                });
+
+                setTimeout(() => {
+                    location.href = 'puzzle5.html';
+                }, 3000);
+            } else {
+                // Wrong cable
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').textContent = `❌ Wrong cable! The speaker is still loud! Try again...`;
+
+                if (attempts >= 3) {
+                    document.querySelector('.hint').style.fontSize = '20px';
+                    document.querySelector('.hint').style.color = '#ff6600';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
