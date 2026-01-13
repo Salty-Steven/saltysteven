@@ -235,6 +235,18 @@
     </style>
 </head>
 <body>
+    <!-- DEV NAV - REMOVE BEFORE GIFTING -->
+    <div style="background: #ff6b6b; color: white; padding: 10px; text-align: center; font-family: monospace; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;">
+        <strong>DEV MODE:</strong>
+        <a href="index.html" style="color: white; margin: 0 10px;">Home</a> |
+        <a href="puzzle1.html" style="color: white; margin: 0 10px;">P1</a> |
+        <a href="puzzle2.html" style="color: white; margin: 0 10px;">P2</a> |
+        <a href="puzzle3.html" style="color: white; margin: 0 10px;">P3</a> |
+        <a href="puzzle4.html" style="color: white; margin: 0 10px;">P4</a> |
+        <a href="puzzle5.html" style="color: white; margin: 0 10px;">P5</a> |
+        <a href="congrats.html" style="color: white; margin: 0 10px;">End</a>
+    </div>
+    <div style="height: 50px;"></div>
     <div class="battle-container">
         <div class="battle-scene">
             <div class="player-sprite">
@@ -245,14 +257,6 @@
             </div>
 
             <div class="hp-container enemy-hp">
-                <div class="hp-name">DIRT DOG</div>
-                <div class="hp-bar-container">
-                    <div class="hp-bar" id="dogHpBar" style="width: 100%"></div>
-                </div>
-                <div class="hp-text">HP: <span id="dogHp">120</span>/120</div>
-            </div>
-
-            <div class="hp-container player-hp">
                 <div class="hp-name">STEVEN</div>
                 <div class="hp-bar-container">
                     <div class="hp-bar" id="stevenHpBar" style="width: 100%"></div>
@@ -260,45 +264,38 @@
                 <div class="hp-text">HP: <span id="stevenHp">100</span>/100</div>
                 <div class="status-effect" id="stevenStatus"></div>
             </div>
+
+            <div class="hp-container player-hp">
+                <div class="hp-name">DIRT DOG</div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar" id="dogHpBar" style="width: 100%"></div>
+                </div>
+                <div class="hp-text">HP: <span id="dogHp">100</span>/100</div>
+            </div>
         </div>
 
         <div class="battle-info" id="battleText">
-            A wild rabid DIRT DOG appeared! It's trying to sell you dirt!<br>What will STEVEN do?
+            A wild STEVEN appeared!<br>What will DIRT DOG do?
         </div>
 
         <div class="battle-menu" id="battleMenu">
-            <button class="attack-btn" onclick="useAttack('punch')">PUNCH</button>
-            <button class="attack-btn" onclick="useAttack('kick')">KICK</button>
-            <button class="attack-btn special" onclick="useAttack('smoke')">SMOKE WEED 🌿</button>
-            <button class="attack-btn" onclick="useAttack('run')">RUN AWAY</button>
+            <button class="attack-btn" onclick="useAttack('bite')">BITE BUTT 🍑</button>
+            <button class="attack-btn" onclick="useAttack('selldirt')">SELL DIRT</button>
+            <button class="attack-btn" onclick="useAttack('sniff')">SNIFF 👃</button>
+            <button class="attack-btn special" onclick="useAttack('sellweed')">SELL WEED 🌿</button>
         </div>
     </div>
 
     <script>
+        let dogHp = 100;
+        let dogMaxHp = 100;
         let stevenHp = 100;
         let stevenMaxHp = 100;
-        let dogHp = 120;
-        let dogMaxHp = 120;
         let isAnimating = false;
         let stevenConfused = false;
         let confusedTurns = 0;
 
         function updateHP() {
-            // Update Dog's HP
-            const dogPercent = (dogHp / dogMaxHp) * 100;
-            const dogBar = document.getElementById('dogHpBar');
-            dogBar.style.width = dogPercent + '%';
-
-            if (dogPercent <= 25) {
-                dogBar.className = 'hp-bar critical';
-            } else if (dogPercent <= 50) {
-                dogBar.className = 'hp-bar low';
-            } else {
-                dogBar.className = 'hp-bar';
-            }
-
-            document.getElementById('dogHp').textContent = Math.max(0, dogHp);
-
             // Update Steven's HP
             const stevenPercent = (stevenHp / stevenMaxHp) * 100;
             const stevenBar = document.getElementById('stevenHpBar');
@@ -313,6 +310,21 @@
             }
 
             document.getElementById('stevenHp').textContent = Math.max(0, stevenHp);
+
+            // Update Dog's HP
+            const dogPercent = (dogHp / dogMaxHp) * 100;
+            const dogBar = document.getElementById('dogHpBar');
+            dogBar.style.width = dogPercent + '%';
+
+            if (dogPercent <= 25) {
+                dogBar.className = 'hp-bar critical';
+            } else if (dogPercent <= 50) {
+                dogBar.className = 'hp-bar low';
+            } else {
+                dogBar.className = 'hp-bar';
+            }
+
+            document.getElementById('dogHp').textContent = Math.max(0, dogHp);
         }
 
         function updateStatus() {
@@ -349,14 +361,14 @@
         }
 
         function spawnSmoke() {
-            const stevenSprite = document.getElementById('stevenSprite');
-            const stevenRect = stevenSprite.getBoundingClientRect();
+            const dogSprite = document.getElementById('dogSprite');
+            const dogRect = dogSprite.getBoundingClientRect();
 
             const smoke = document.createElement('div');
             smoke.className = 'smoke smoke-rise';
             smoke.textContent = '💨';
-            smoke.style.left = stevenRect.left + 'px';
-            smoke.style.top = stevenRect.top + 'px';
+            smoke.style.left = dogRect.left + 'px';
+            smoke.style.top = dogRect.top + 'px';
 
             document.body.appendChild(smoke);
 
@@ -392,114 +404,34 @@
             let attackName = '';
             let message = '';
 
-            // Check if Steven is confused
-            if (stevenConfused && attackType !== 'smoke') {
-                confusedTurns--;
-                if (confusedTurns <= 0) {
-                    stevenConfused = false;
-                }
-                updateStatus();
-
-                // 50% chance to hurt himself or miss
-                if (Math.random() < 0.5) {
-                    message = `STEVEN is confused!<br><span class="type-effect">He hurt himself in his confusion!</span>`;
-                    setTimeout(() => {
-                        setBattleText(message);
-                        const selfDamage = Math.floor(Math.random() * 10) + 10;
-                        stevenHp = Math.max(0, stevenHp - selfDamage);
-                        shakeSprite('stevenSprite');
-                        updateHP();
-
-                        setTimeout(() => {
-                            if (stevenHp <= 0) {
-                                setBattleText('STEVEN fainted from confusion!<br>Game Over...');
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 3000);
-                            } else {
-                                dogAttack();
-                            }
-                        }, 1500);
-                    }, 500);
-                    return;
-                } else {
-                    message = `STEVEN is confused!<br><span class="type-effect">The attack missed!</span>`;
-                    setBattleText(message);
-                    setTimeout(() => {
-                        dogAttack();
-                    }, 2000);
-                    return;
-                }
-            }
-
             switch(attackType) {
-                case 'punch':
-                    attackName = 'PUNCH';
-                    damage = Math.floor(Math.random() * 12) + 18; // 18-29 damage
-                    message = `STEVEN used ${attackName}!`;
+                case 'bite':
+                    attackName = 'BITE BUTT';
+                    damage = Math.floor(Math.random() * 10) + 18; // 18-27 damage
+                    message = `DIRT DOG used ${attackName}! 🍑`;
                     break;
-                case 'kick':
-                    attackName = 'KICK';
-                    damage = Math.floor(Math.random() * 10) + 15; // 15-24 damage
-                    message = `STEVEN used ${attackName}!`;
+                case 'selldirt':
+                    attackName = 'SELL DIRT';
+                    damage = Math.floor(Math.random() * 8) + 10; // 10-17 damage
+                    message = `DIRT DOG used ${attackName}!<br><span class="type-effect">"Buy my premium organic dirt!"</span>`;
+                    throwDirt();
                     break;
-                case 'smoke':
-                    attackName = 'SMOKE WEED';
-                    message = `STEVEN used ${attackName}! 🌿<br><span class="type-effect">STEVEN became confused!</span>`;
+                case 'sniff':
+                    attackName = 'SNIFF';
+                    damage = Math.floor(Math.random() * 6) + 5; // 5-10 damage
+                    message = `DIRT DOG used ${attackName}! 👃<br><span class="type-effect">It's super awkward!</span>`;
+                    break;
+                case 'sellweed':
+                    attackName = 'SELL WEED';
+                    message = `DIRT DOG used ${attackName}! 🌿<br><span class="type-effect">STEVEN bought some and became confused!</span>`;
                     spawnSmoke();
                     stevenConfused = true;
                     confusedTurns = 3;
                     updateStatus();
                     break;
-                case 'run':
-                    attackName = 'RUN AWAY';
-                    message = `STEVEN tried to RUN AWAY!<br><span class="type-effect">But he can't escape from a rabid dirt salesman!</span>`;
-                    break;
             }
 
             setBattleText(message);
-
-            if (damage > 0) {
-                setTimeout(() => {
-                    dogHp = Math.max(0, dogHp - damage);
-                    shakeSprite('dogSprite');
-                    updateHP();
-
-                    setTimeout(() => {
-                        if (dogHp <= 0) {
-                            setBattleText('DIRT DOG gave up selling dirt!<br>STEVEN wins! Congratulations!');
-                            setTimeout(() => {
-                                location.href = 'congrats.html';
-                            }, 3000);
-                        } else {
-                            dogAttack();
-                        }
-                    }, 1000);
-                }, 1500);
-            } else {
-                setTimeout(() => {
-                    dogAttack();
-                }, 2000);
-            }
-        }
-
-        function dogAttack() {
-            const attacks = [
-                { name: 'BITE', damage: [12, 20] },
-                { name: 'TACKLE', damage: [10, 18] },
-                { name: 'THROW DIRT', damage: [8, 15], effect: 'dirt' },
-                { name: 'SALES PITCH', damage: [0, 0] }
-            ];
-
-            const attack = attacks[Math.floor(Math.random() * attacks.length)];
-            const damage = attack.damage[0] === 0 ? 0 :
-                          Math.floor(Math.random() * (attack.damage[1] - attack.damage[0] + 1)) + attack.damage[0];
-
-            setBattleText(`DIRT DOG used ${attack.name}!`);
-
-            if (attack.effect === 'dirt') {
-                throwDirt();
-            }
 
             if (damage > 0) {
                 setTimeout(() => {
@@ -509,12 +441,92 @@
 
                     setTimeout(() => {
                         if (stevenHp <= 0) {
-                            setBattleText('STEVEN fainted!<br>The dirt salesman wins...');
+                            setBattleText('STEVEN fainted!<br>DIRT DOG wins! Congratulations!');
+                            setTimeout(() => {
+                                location.href = 'congrats.html';
+                            }, 3000);
+                        } else {
+                            stevenAttack();
+                        }
+                    }, 1000);
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    stevenAttack();
+                }, 2000);
+            }
+        }
+
+        function stevenAttack() {
+            // Check if Steven is confused
+            if (stevenConfused) {
+                confusedTurns--;
+                if (confusedTurns <= 0) {
+                    stevenConfused = false;
+                }
+                updateStatus();
+
+                // 50% chance to hurt himself or miss
+                if (Math.random() < 0.5) {
+                    setBattleText(`STEVEN is confused!<br><span class="type-effect">He hurt himself in his confusion!</span>`);
+                    const selfDamage = Math.floor(Math.random() * 10) + 10;
+
+                    setTimeout(() => {
+                        stevenHp = Math.max(0, stevenHp - selfDamage);
+                        shakeSprite('stevenSprite');
+                        updateHP();
+
+                        setTimeout(() => {
+                            if (stevenHp <= 0) {
+                                setBattleText('STEVEN fainted from confusion!<br>DIRT DOG wins!');
+                                setTimeout(() => {
+                                    location.href = 'congrats.html';
+                                }, 3000);
+                            } else {
+                                setBattleText('What will DIRT DOG do?');
+                                isAnimating = false;
+                                enableButtons();
+                            }
+                        }, 1500);
+                    }, 1000);
+                    return;
+                } else {
+                    setBattleText(`STEVEN is confused!<br><span class="type-effect">The attack missed!</span>`);
+                    setTimeout(() => {
+                        setBattleText('What will DIRT DOG do?');
+                        isAnimating = false;
+                        enableButtons();
+                    }, 2000);
+                    return;
+                }
+            }
+
+            const attacks = [
+                { name: 'PUNCH', damage: [10, 16] },
+                { name: 'KICK', damage: [12, 18] },
+                { name: 'REFUSE TO BUY', damage: [0, 0] }
+            ];
+
+            const attack = attacks[Math.floor(Math.random() * attacks.length)];
+            const damage = attack.damage[0] === 0 ? 0 :
+                          Math.floor(Math.random() * (attack.damage[1] - attack.damage[0] + 1)) + attack.damage[0];
+
+            setBattleText(`STEVEN used ${attack.name}!`);
+
+            if (damage > 0) {
+                setTimeout(() => {
+                    dogHp = Math.max(0, dogHp - damage);
+                    shakeSprite('dogSprite');
+                    updateHP();
+
+                    setTimeout(() => {
+                        if (dogHp <= 0) {
+                            setBattleText('DIRT DOG fainted!<br>STEVEN wins...');
                             setTimeout(() => {
                                 location.reload();
                             }, 3000);
                         } else {
-                            setBattleText('What will STEVEN do?');
+                            setBattleText('What will DIRT DOG do?');
                             isAnimating = false;
                             enableButtons();
                         }
@@ -522,9 +534,9 @@
                 }, 1500);
             } else {
                 setTimeout(() => {
-                    setBattleText(`DIRT DOG used ${attack.name}!<br><span class="type-effect">"Buy my dirt! It's organic!"</span>`);
+                    setBattleText(`STEVEN used ${attack.name}!<br><span class="type-effect">"I'm not buying your dirt!"</span>`);
                     setTimeout(() => {
-                        setBattleText('What will STEVEN do?');
+                        setBattleText('What will DIRT DOG do?');
                         isAnimating = false;
                         enableButtons();
                     }, 1500);
